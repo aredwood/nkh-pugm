@@ -77,7 +77,7 @@ public Action:Event_gameOver(Handle:event, const String:name[], bool:dontBroadca
 }
 public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} Thank you for playing on nKH!");
-	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerepugsandlobbies");
+	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
 }
 /*                                                      
 							Function that manages password locking.
