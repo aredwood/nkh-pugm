@@ -1,5 +1,5 @@
 /*
-	nKH pug manager
+	nKH! Pug Manager
 	by da_apple
 	it's my first plugin OK! :(
 	I wonder if this will be of any use.
@@ -23,9 +23,9 @@
 */
 
 public Plugin:myinfo = {
-	name = "nKH! pug manager",
+	name = "nKH! Pug Manager",
 	author = "da_apple",
-	description = "simplifys pug management",
+	description = "Simplifys Pug management",
 	version = "1.0",
 	url = "http://steamcommunity.com/groups/nokidshere"
 };
@@ -55,7 +55,7 @@ public OnPluginStart(){
 
 
 	//let em know.
-	PrintToServer("nKH! pug manager 1.0 loaded.");
+	PrintToServer("nKH! Pug Manager 1.0 loaded.");
 }
 //A small thank you message.
 public Action:Event_gameOver(Handle:event, const String:name[], bool:dontBroadcast){/*
@@ -275,7 +275,7 @@ public Action:mapChange(client,args){
 		CreateTimer(5.0,MapTimer);
 	}else{
 		//When a map that isn't installed is given, or something like !changemap SWAGBOIZE happens.
-		CPrintToChat(client,"{strange}[nKH!]{white} Map isn't valid, likely isn't spelt correctly or not installed.");
+		CPrintToChat(client,"{strange}[nKH!]{white} Map not found, likely spelt incorrectly or not installed.");
 	}
 }
 public Action:MapTimer(Handle:timer){
