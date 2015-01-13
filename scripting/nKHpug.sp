@@ -37,8 +37,9 @@ public Plugin:myinfo = {
 public OnPluginStart(){
 
 	//Hooks
-	HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
+	//HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
+	HookEvent("game_start", Event_gameStart);			//Event for when game starts
 
 	//Allow people with sm_rcon access to use this plugin, makes sense.
 		//Commands
@@ -133,7 +134,13 @@ public DoAutoLock(){
 	}
 	if(CurrentPlayers < AutoLockLimit && AutoLockBool == true){
 		PlayerDifference = AutoLockLimit - CurrentPlayers;
-		CPrintToChatAll("{strange}[nKH!]{white} %i players short.",PlayerDifference);
+		//CPrintToChatAll("{strange}[nKH!]{white} %i players short.",PlayerDifference);
+		if(PlayerDifference = 1){
+			CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"player");
+		}
+		if(PlayerDifference > 1){
+			CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"players");
+		}
 	}
 	//playerlimit not reached, or autolock is disabled.
 
@@ -268,7 +275,7 @@ public Action:mapChange(client,args){
 		CreateTimer(5.0,MapTimer);
 	}else{
 		//When a map that isn't installed is given, or something like !changemap SWAGBOIZE happens.
-		CPrintToChat(client,"{strange}[nKH!]{white} Map isn't valid, likely spelt correctly or not installed.");
+		CPrintToChat(client,"{strange}[nKH!]{white} Map isn't valid, likely isn't spelt correctly or not installed.");
 	}
 }
 public Action:MapTimer(Handle:timer){
@@ -306,7 +313,7 @@ public Action:list(client,args){
 	}
 	//manages map list 
 	if(strcmp(listArgOne,"maps",false) == 0 && GetCmdArgs() <= 3){
-		CPrintToChat(client,"{strange}[nKH!]{white} Map listing results for \"%s\" have been outputed to console.", listArgTwo);
+		CPrintToChat(client,"{strange}[nKH!]{white} Map listing results for \"%s\" have been outputted to console.", listArgTwo);
 		FakeClientCommand(client,"sm_rcon maps %s",listArgTwo);
 		PrintToConsole(client,"[nKH!] END OF LISTING.");
 	}
