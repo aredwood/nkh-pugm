@@ -58,18 +58,7 @@ public OnPluginStart(){
 	PrintToServer("nKH! Pug Manager 1.0 loaded.");
 }
 //A small thank you message.
-public Action:Event_gameOver(Handle:event, const String:name[], bool:dontBroadcast){/*
-	PrintToConsole(client,"__________________________________________________________________________________________");
-	PrintToConsole(client,"|       _   __ _   _ _                                                                   |"):
-	PrintToConsole(client,"|      | | / /| | | | |                                                                  |"):
-	PrintToConsole(client,"| _ __ | |/ / | |_| | |  _ __  _   _  __ _   _ __ ___   __ _ _ __   __ _  __ _  ___ _ __ |"):
-	PrintToConsole(client,"|| '_ \|    \ |  _  | | | '_ \| | | |/ _` | | '_ ` _ \ / _` | '_ \ / _` |/ _` |/ _ \ '__||"):
-	PrintToConsole(client,"|| | | | |\  \| | | |_| | |_) | |_| | (_| | | | | | | | (_| | | | | (_| | (_| |  __/ |   |"):
-	PrintToConsole(client,"||_| |_\_| \_/\_| |_(_) | .__/ \__,_|\__, | |_| |_| |_|\__,_|_| |_|\__,_|\__, |\___|_|   |"):
-	PrintToConsole(client,"|                       | |           __/ |                               __/ |          |"):
-	PrintToConsole(client,"|                       |_|          |___/                               |___/           |");
-	PrintToConsole(client,"__________________________________________________________________________________________");*/
-	
+public Action:Event_gameOver(Handle:event, const String:name[], bool:dontBroadcast){
 
 	//The only reason this uses a timer, is because STV record messages and PREC messages can easily flood chat.
 	new Float:thankYouDelay = 2.0;
