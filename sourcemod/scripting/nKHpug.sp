@@ -15,11 +15,6 @@
 	Add more comments,
 	Add map listing / searching,
 	Add customization via ConVars
-
-
-
-
-
 */
 
 public Plugin:myinfo = {
@@ -35,7 +30,6 @@ public Plugin:myinfo = {
    		return APLRes_Success; 
 	}
 public OnPluginStart(){
-
 	//Hooks
 	//HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
@@ -52,7 +46,7 @@ public OnPluginStart(){
 		RegConsoleCmd("getpass",pass);
 		RegConsoleCmd("getstring",getString);
 
-
+		preAutoLock();
 	//let em know.
 	PrintToServer("nKH! Pug Manager 1.0 loaded.");
 }
@@ -71,7 +65,21 @@ public Action:thankYouDisplay(Handle:timer){
 							Function that manages password locking.
 
 */
+/*
+							Lock 12 if 6's, lock 18 if highlander
+*/
+public preAutoLock(){
+	new String:hostname[32];										//	BE
+	new Handle:hostnameHandler = FindConVar("hostname");			//	ANYMORE
+	GetConVarString(hostnameHandler,hostname,sizeof(hostname));
 
+	if(StrContains(hostname,"6s",false) != -1){
+		ServerCommand("autolock 12");
+	}
+	if(StrContains(hostname,"9s",false) != -1){
+		ServerCommand("autolock 18");
+	}
+}
 public Action:passwordLock(client,args){
 	//If user supplied a password.
 	if(GetCmdArgs() < 1){
@@ -112,7 +120,7 @@ new CurrentPlayers;
 new bool:AutoLockBool = false;
 new AutoLockLimit; //This varible was actually a float at some stage.
 new PlayerDifference;
-
+new bool:printInProgress = false;
 //Function to check whether to lock
 public DoAutoLock(){
 	if(CurrentPlayers >= AutoLockLimit && AutoLockBool == true){
@@ -122,16 +130,21 @@ public DoAutoLock(){
 	}
 	if(CurrentPlayers < AutoLockLimit && AutoLockBool == true){
 		PlayerDifference = AutoLockLimit - CurrentPlayers;
-		//CPrintToChatAll("{strange}[nKH!]{white} %i players short.",PlayerDifference);
-		if(PlayerDifference == 1){
-			CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"player");
+		if(printInProgress == false){
+			CreateTimer(3.0,playersLeft);
+			printInProgress = true;
 		}
-		if(PlayerDifference > 1){
-			CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"players");
-		}
-	}
-	//playerlimit not reached, or autolock is disabled.
 
+	}
+}
+public Action:playersLeft(Handle:timer){
+	if(PlayerDifference == 1){
+		CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"player");
+	}
+	if(PlayerDifference > 1){
+		CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"players");
+	}
+	printInProgress = false;
 }
 //This function is executed upon !autolock
 public Action:autoLock(client,args){
@@ -148,11 +161,11 @@ public Action:autoLock(client,args){
 		AutoLockBool = true;
 	}
 	//If the parameters make no sense.
-	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99){
+	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99 || GetCmdArgs() == 1){
 		CPrintToChat(client,"{strange}[nKH!]{white} Incorrent parameters!");
 	}
 	//For disabling autolock.
-	if(AutoLockLimitDesired == 0 || !strcmp(AutoLockLimitDesiredString,"off")){
+	if(AutoLockLimitDesired == 0 || strcmp(AutoLockLimitDesiredString,"off",false)){
 		CPrintToChatAll("{strange}[nKH!]{white} Autolock has been disabled.");
 		AutoLockBool = false;
 	}
@@ -160,13 +173,16 @@ public Action:autoLock(client,args){
 	return Plugin_Handled;
 }
 //Whenever a client connets.
-public OnClientConnected(){
-	CurrentPlayers = CurrentPlayers + 1;
-	DoAutoLock();
+public OnClientConnected(client){
+	if(!IsClientSourceTV(client)){
+		CurrentPlayers = CurrentPlayers + 1; //validate
+		DoAutoLock();
+	}
+
 }
 //Whenever a client disconnects.
-public OnClientDisconnect(){
-	CurrentPlayers = CurrentPlayers - 1;
+public OnClientDisconnect(client){
+	CurrentPlayers = CurrentPlayers - 1; //validate
 	DoAutoLock();
 }
 /*                                                                                                                 
@@ -306,6 +322,20 @@ public Action:list(client,args){
 		PrintToConsole(client,"[nKH!] END OF LISTING.");
 	}
 }
-
+/*
+							Dump Mumble Details
+*/
+public Action:mumble(client,args){
+	new String:mubmleArg[4];
+	GetCmdArg(1,mubmleArg,sizeof(mubmleArg));
+	if(strcmp(mubmleArg,"all",false) == 0){
+		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
+		CPrintToChatAll("{strange}[nKH!]{white} 119.252.190.75 - Address");
+		CPrintToChatAll("{strange}[nKH!]{white} 64888 - Port");
+	}
+	CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
+	CPrintToChat(client,"{strange}[nKH!]{white} 119.252.190.75 - Address");
+	CPrintToChat(client,"{strange}[nKH!]{white} 64888 - Port");
+}
 
 
