@@ -93,7 +93,7 @@ public Action:passwordLock(client,args){
 			passwordLockGenerated[i] = Nums[RandomNum];
 		}
 		ServerCommand("sv_password %s",passwordLockGenerated);
-		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: %s",passwordLockGenerated);
+		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {lightskyblue}%s",passwordLockGenerated);
  
 	}
 	else{
@@ -103,7 +103,7 @@ public Action:passwordLock(client,args){
 	
 		//Change password
 		ServerCommand("sv_password %s",passwordLockDesired);
-		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: %s",passwordLockDesired);
+		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {lightskyblue}%s",passwordLockDesired);
 	}
 }
 /*
@@ -140,10 +140,10 @@ public DoAutoLock(){
 }
 public Action:playersLeft(Handle:timer){
 	if(PlayerDifference == 1){
-		CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"player");
+		CPrintToChatAll("{strange}[nKH!]{white} %i {lightskyblue}%s{white} short.",PlayerDifference,"player");
 	}
 	if(PlayerDifference > 1){
-		CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"players");
+		CPrintToChatAll("{strange}[nKH!]{white} %i {lightskyblue}%s{white} short.",PlayerDifference,"players");
 	}
 	printInProgress = false;
 }
@@ -157,7 +157,7 @@ public Action:autoLock(client,args){
 	new AutoLockLimitDesired = StringToInt(AutoLockLimitDesiredString);
 	//If I wanted to be smart, i'd make it so that the desired limit would be <= MaxPlayers.
 	if(AutoLockLimitDesired > 0 && AutoLockLimitDesired < 99){
-		CPrintToChat(client,"{strange}[nKH!]{white} Server will automatically lock when %i players have connected.",AutoLockLimitDesired);
+		CPrintToChat(client,"{strange}[nKH!]{white} Server will automatically lock when {lightskyblue}%i{white} players have connected.",AutoLockLimitDesired);
 		AutoLockLimit = AutoLockLimitDesired;
 		AutoLockBool = true;
 	}
@@ -197,7 +197,7 @@ public Action:pass(client,args){
 		decl String:CurrentPassword[64];
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
 		//CPrint password to client.
-		CPrintToChat(client,"{strange}[nKH!]{white} Current password is: %s",CurrentPassword);
+		CPrintToChat(client,"{strange}[nKH!]{white} Current password is: {lightskyblue}%s",CurrentPassword);
 	}
 	//If someone requests the password, but it has been disabled by an admin.
 	if(GetCmdArgs() < 1 && GetPass == false){
@@ -246,7 +246,7 @@ public Action:getString(client,args){
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
 		//CPrint password to client.
 		CPrintToChat(client,"{strange}[nKH!]{white} Connect string has also been given in console.");
-		CPrintToChat(client,"{white}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
+		CPrintToChat(client,"{lightskyblue}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
 		PrintToConsole(client,"connect %s:%s; password %s //%s",ip,hostport,CurrentPassword,hostname);
 	}
 	//Client requested the string, but GetPass was set to false.
@@ -275,7 +275,7 @@ public Action:mapChange(client,args){
 		strcopy(MapName,sizeof(MapName),MapInput);
 	}
 	if(IsMapValid(MapName)){
-		CPrintToChatAll("{strange}[nKH!]{white} Changing map to %s in 5 seconds.",MapName);
+		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {lightskyblue}%s{white} in 5 seconds.",MapName);
 		//Whole purpose of the timer is to alert players of the map change.
 		CreateTimer(5.0,MapTimer);
 	}else{
@@ -308,7 +308,7 @@ public Action:specCall(Handle:timer){
 public Action:listMaps(client,args){
 	new String:listMapsArg[16];
 	GetCmdArg(1,listMapsArg,sizeof(listMapsArg));
-	CPrintToChat(client,"{strange}[nKH!]{white} Check console.");
+	CPrintToChat(client,"{strange}[nKH!]{white} Check console for output.");
 	FakeClientCommandEx(client,"sm_rcon maps %s",listMapsArg);
 }
 /*
@@ -318,13 +318,13 @@ public Action:mumble(client,args){
 	new String:mumbleArg[4];
 	GetCmdArg(1,mumbleArg,sizeof(mumbleArg));
 	if(strcmp(mumbleArg,"all",false) == 0){
-		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
-		CPrintToChatAll("{strange}[nKH!]{white} 119.252.190.75 - Address");
-		CPrintToChatAll("{strange}[nKH!]{white} 64888 - Port");
+		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
+		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
+		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
 	}else{
 		CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
-		CPrintToChat(client,"{strange}[nKH!]{white} 119.252.190.75 - Address");
-		CPrintToChat(client,"{strange}[nKH!]{white} 64888 - Port");
+		CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
+		CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
 	}
 
 }
