@@ -135,13 +135,15 @@ da_apple: `!list mumble`
 [nKH!] 119.252.190.75 - Address
 [nKH!] 64888 - Port
 
-!list maps pl_
-	This command will list map information
-	 If “mumble” is used as the 1st argument, the plugin will broadcast the nKH! mumble		 	details to everyone on the server.
+`!list maps pl_`
+
+This command will list map information
+
+If “mumble” is used as the 1st argument, the plugin will broadcast the nKH! mumble details to everyone on the server.
 	
-	If “maps” is used as the 1st argument, a 2nd argument will be required which will be the			“extension” of a map (pl_,cp_,koth_).The plugin will then dump all of the maps beginning with that		extension to the issuer’s console.
+If “maps” is used as the 1st argument, a 2nd argument will be required which will be the “extension” of a map (pl_,cp_,koth_).The plugin will then dump all of the maps beginning with that extension to the issuer’s console.
 		
-		Example: Using !list maps pl_ to list all currently installed			payload maps.
+		Example: Using !list maps pl_ to list all currently installed payload maps.
 		da_apple:/list maps pl_
 		[nKH!] Map listing results for pl_ have been outputted to console.
 		**IN CONSOLE**
