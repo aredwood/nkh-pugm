@@ -284,7 +284,7 @@ public Action:callSpec(client,args){
 }
 //Call Spec.
 public Action:specCall(Handle:timer){
-	ServerCommand("sm_csay spec; say spec");
+	ServerCommand("sm_csay SPEC; say SPEC");
 }
 /*
 							This function's main purpose is to dump information.           
