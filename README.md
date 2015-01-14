@@ -4,40 +4,49 @@ nKH! Pug Manager
 Commands
 ------------
 ### Changing Server Password
-`!lock <password>` will change the password of the server to (password), then broadcast the new password 	to all players on the server.
-If (password) isn’t given, the plugin will generate a random 4 digit sequence (6445), and set it as the server password, also broadcasting the new password to the server.
+`!lock <password>` will change the password of the server to <password>, then broadcast the new password 	to all players on the server.
+If <password> isn’t given, the plugin will generate a random 4 digit sequence (i.e. 6445), and set it as the server password, also broadcasting the new password to the server.
 
 Example: Locking the server with a desired password. 
-`da_apple: /lock HELLO
+
+da_apple: `!lock HELLO`
 [nKH!] Password has been changed to: HELLO
+
 Example: Locking the server without a desired password.
-da_apple:!lock
-[nKH!] Password has been changed to: 5667`
 
-!unlock
-	Changes the server password to “Medic!”.
-	Example: unlocking the server.
-	da_apple: /unlock
-	[nKH!] Password has been changed to: Medic!
+da_apple: `!lock`
+[nKH!] Password has been changed to: 5667
 
-!autolock (18)
-!autolock off
-Automatically locks the server (!lock) when the specified player limit (18 in this example) 	has been reached. 
-Using “off” or “0” as the parameter will disable the autolock, until it is enabled (!autolock 18). 		Additionally, autolock will disable itself after locking the server.
+'!unlock' Changes the server password to “Medic!”.
+	
+Example: unlocking the server.
+
+da_apple: `!unlock`
+[nKH!] Password has been changed to: Medic!
+
+### Autolock
+`!autolock <number of players to lock>` will automatically lock the server (`!lock`) when the specified player limit (18 in this example) has been reached.
+
+`autolock off` or `autolock 0` will disable the autolock, until it is enabled (`!autolock 18`). Additionally, autolock will disable itself after locking the server.
 
 NOTE: Every time a client connects, and autolock is enabled, the server will print out how many players are needed in order to reach the limit.
-	Example: Enabling autolock with a player limit of 18.
-	da_apple:/autolock 18
-	[nKH!] Server will automatically lock when 18 players have connected.
-	[nKH!] 17 players short.
-	Example: Disabling autolock.
-	da_apple:/autolock off
-	[nKH!] Autolock has been disabled.
-	Example: Autolock locking the server.
-	---18’th player has connected---
-	[nKH!] Player limit reached, server locked.
-	[nKH!] Password has been changed to: 5667
 
+Example: Enabling autolock with a player limit of 18.
+
+da_apple:/autolock 18
+[nKH!] Server will automatically lock when 18 players have connected.
+[nKH!] 17 players short.
+
+Example: Disabling autolock.
+
+da_apple:/autolock off
+[nKH!] Autolock has been disabled.
+
+Example: Autolock locking the server.
+
+---18’th player has connected---
+[nKH!] Player limit reached, server locked.
+[nKH!] Password has been changed to: 5667
 
 
 !getpass on / !pass off	(both commands work exactly the same way)
@@ -118,10 +127,12 @@ PENDING:   (fs) pl_barnblitz_pro4.bsp
 
 If a command has been used incorrectly, the plugin will notify the user.
 
-To Do:
-●	Improve memory management
-●	Add help function, maybe?
+To Do
+------------
+● Improve memory management
+● Add help function, maybe?
 
-Notes:
-●	It is very important that the plugin IS NOT reloaded during a game, a number of the functions in this plugin rely on accurate counting of players. Reloading the plugin will reset the counters.
-●	All commands (not their prints) can be hidden by replacing the “!” with a “/”.
+Notes
+------------
+● It is very important that the plugin IS NOT reloaded during a game, a number of the functions in this plugin rely on accurate counting of players. Reloading the plugin will reset the counters.
+●All commands (not their prints) can be hidden by replacing the “!” with a “/”.
