@@ -21,7 +21,7 @@ public Plugin:myinfo = {
 	name = "nKH! Pug Manager",
 	author = "da_apple",
 	description = "Simplifys Pug management",
-	version = "1.0",
+	version = "1.1",
 	url = "http://steamcommunity.com/groups/nokidshere"
 };
 	//morecolors.inc needs this for backwars compatibility
