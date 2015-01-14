@@ -167,7 +167,7 @@ public Action:autoLock(client,args){
 		CPrintToChat(client,"{strange}[nKH!]{white} Incorrent parameters!");
 	}
 	//For disabling autolock.
-	if(AutoLockLimitDesired == 0 || strcmp(AutoLockLimitDesiredString,"off",false)){
+	if(AutoLockLimitDesired == 0 || strcmp(AutoLockLimitDesiredString,"off",false) == 0){
 		CPrintToChatAll("{strange}[nKH!]{white} Autolock has been disabled.");
 		AutoLockBool = false;
 	}
