@@ -31,7 +31,7 @@ public Plugin:myinfo = {
 	}
 public OnPluginStart(){
 	//Hooks
-	//HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
+	HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
 
 	//Allow people with sm_rcon access to use this plugin, makes sense.
@@ -51,17 +51,21 @@ public OnPluginStart(){
 	PrintToServer("nKH! Pug Manager 1.0 loaded.");
 }
 //A small thank you message.
-public Action:Event_gameOver(Handle:event, const String:name[], bool:dontBroadcast){
+new bool:thankYouInProgress = false;
+public Action:Event_gameOver(Handle:event, String:name[], bool:dontBroadcast){
+	if(thankYouInProgress == false){
+		thankYouInProgress = true;
+		new Float:thankYouDelay = 2.0;
+		CreateTimer(thankYouDelay,thankYouDisplay);
 
-	//The only reason this uses a timer, is because STV record messages and PREC messages can easily flood chat.
-	new Float:thankYouDelay = 2.0;
-	CreateTimer(thankYouDelay,thankYouDisplay);
+	}
+
 }
 public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} Thank you for playing on nKH!");
 	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
+	thankYouInProgress = false;
 }
-
 /*
 							Lock 12 if 6's, lock 18 if highlander
 */
@@ -140,10 +144,10 @@ public DoAutoLock(){
 }
 public Action:playersLeft(Handle:timer){
 	if(PlayerDifference == 1){
-		CPrintToChatAll("{strange}[nKH!]{white} %i {lightskyblue}%s{white} short.",PlayerDifference,"player");
+		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}%i {white}%s short.",PlayerDifference,"player");
 	}
 	if(PlayerDifference > 1){
-		CPrintToChatAll("{strange}[nKH!]{white} %i {lightskyblue}%s{white} short.",PlayerDifference,"players");
+		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}%i {white}%s short.",PlayerDifference,"players");
 	}
 	printInProgress = false;
 }
@@ -322,7 +326,7 @@ public Action:mumble(client,args){
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
 	}else{
-		CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
+		CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
 		CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
 		CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
 	}
