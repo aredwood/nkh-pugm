@@ -27,9 +27,9 @@ da_apple: `!unlock`
 [nKH!] Password has been changed to: Medic!
 
 ### Autolock
-`!autolock <number of players to lock>` will automatically lock the server (`!lock`) when the specified player limit (18 in this example) has been reached.
+`!autolock <number of players to lock>` will automatically lock the server when the specified player limit (18 in this example) has been reached.
 
-`autolock off` or `autolock 0` will disable the autolock, until it is enabled (`!autolock 18`). Additionally, autolock will disable itself after locking the server.
+`autolock off` or `autolock 0` will disable the autolock, until it is enabled. Additionally, autolock will disable itself after locking the server.
 
 NOTE: Every time a client connects, and autolock is enabled, the server will print out how many players are needed in order to reach the limit.
 
@@ -131,10 +131,10 @@ If a command has been used incorrectly, the plugin will notify the user.
 
 To Do
 ------------
-● Improve memory management
-● Add help function, maybe?
+* Improve memory management
+* Add help function, maybe?
 
 Notes
 ------------
-● It is very important that the plugin IS NOT reloaded during a game, a number of the functions in this plugin rely on accurate counting of players. Reloading the plugin will reset the counters.
-●All commands (not their prints) can be hidden by replacing the “!” with a “/”.
+* It is very important that the plugin IS NOT reloaded during a game, a number of the functions in this plugin rely on accurate counting of players. Reloading the plugin will reset the counters.
+* All commands (not their prints) can be hidden by replacing the “!” with a “/”.
