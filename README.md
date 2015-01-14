@@ -4,15 +4,15 @@ nKH! Pug Manager
 Commands
 ------------
 ### Changing Server Password
-'!lock <password>' will change the password of the server to (password), then broadcast the new password 	to all players on the server.
+`!lock <password>` will change the password of the server to (password), then broadcast the new password 	to all players on the server.
 If (password) isn’t given, the plugin will generate a random 4 digit sequence (6445), and set it as the server password, also broadcasting the new password to the server.
 
 Example: Locking the server with a desired password. 
-'da_apple: /lock HELLO
+`da_apple: /lock HELLO
 [nKH!] Password has been changed to: HELLO
 Example: Locking the server without a desired password.
 da_apple:!lock
-[nKH!] Password has been changed to: 5667'
+[nKH!] Password has been changed to: 5667`
 
 !unlock
 	Changes the server password to “Medic!”.
