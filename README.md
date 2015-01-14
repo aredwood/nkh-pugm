@@ -1,7 +1,7 @@
 nKH! Pug Manager
 ========
 
-Private use only. Designed by da_apple.
+Private use only. Designed by da_apple and obla.
 
 Commands
 ------------
