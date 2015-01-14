@@ -1,6 +1,8 @@
 nKH! Pug Manager
 ========
 
+Private use only. Designed by da_apple.
+
 Commands
 ------------
 ### Changing Server Password
