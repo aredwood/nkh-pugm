@@ -39,7 +39,6 @@ public OnPluginStart(){
 	//Hooks
 	//HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
-	HookEvent("game_start", Event_gameStart);			//Event for when game starts
 
 	//Allow people with sm_rcon access to use this plugin, makes sense.
 		//Commands
@@ -124,7 +123,7 @@ public DoAutoLock(){
 	if(CurrentPlayers < AutoLockLimit && AutoLockBool == true){
 		PlayerDifference = AutoLockLimit - CurrentPlayers;
 		//CPrintToChatAll("{strange}[nKH!]{white} %i players short.",PlayerDifference);
-		if(PlayerDifference = 1){
+		if(PlayerDifference == 1){
 			CPrintToChatAll("{strange}[nKH!]{white} %i %s short.",PlayerDifference,"player");
 		}
 		if(PlayerDifference > 1){
