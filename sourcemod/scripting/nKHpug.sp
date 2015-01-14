@@ -61,16 +61,13 @@ public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} Thank you for playing on nKH!");
 	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
 }
-/*                                                      
-							Function that manages password locking.
 
-*/
 /*
 							Lock 12 if 6's, lock 18 if highlander
 */
 public preAutoLock(){
-	new String:hostname[32];										//	BE
-	new Handle:hostnameHandler = FindConVar("hostname");			//	ANYMORE
+	new String:hostname[32];										
+	new Handle:hostnameHandler = FindConVar("hostname");			
 	GetConVarString(hostnameHandler,hostname,sizeof(hostname));
 
 	if(StrContains(hostname,"6s",false) != -1){
@@ -80,6 +77,10 @@ public preAutoLock(){
 		ServerCommand("autolock 18");
 	}
 }
+/*                                                      
+							Function that manages password locking.
+
+*/
 public Action:passwordLock(client,args){
 	//If user supplied a password.
 	if(GetCmdArgs() < 1){
