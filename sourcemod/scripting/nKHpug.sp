@@ -46,7 +46,6 @@ public OnPluginStart(){
 		RegConsoleCmd("getpass",pass);
 		RegConsoleCmd("getstring",getString);
 		RegConsoleCmd("listmaps",listMaps);
-		preAutoLock();
 	//let em know.
 	PrintToServer("nKH! Pug Manager 1.0 loaded.");
 }
@@ -66,21 +65,7 @@ public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
 	thankYouInProgress = false;
 }
-/*
-							Lock 12 if 6's, lock 18 if highlander
-*/
-public preAutoLock(){
-	new String:hostname[32];										
-	new Handle:hostnameHandler = FindConVar("hostname");			
-	GetConVarString(hostnameHandler,hostname,sizeof(hostname));
 
-	if(StrContains(hostname,"6s",false) != -1){
-		ServerCommand("autolock 12");
-	}
-	if(StrContains(hostname,"9s",false) != -1){
-		ServerCommand("autolock 18");
-	}
-}
 /*                                                      
 							Function that manages password locking.
 
