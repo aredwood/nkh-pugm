@@ -11,13 +11,13 @@ If <password> isn’t given, the plugin will generate a random 4 digit sequence 
 
 Example: Locking the server with a desired password. 
 
-da_apple: `!lock HELLO`
-[nKH!] Password has been changed to: HELLO
+```da_apple: `!lock HELLO`
+[nKH!] Password has been changed to: HELLO```
 
 Example: Locking the server without a desired password.
 
-da_apple: `!lock`
-[nKH!] Password has been changed to: 5667
+```da_apple: `!lock`
+[nKH!] Password has been changed to: 5667```
 
 ### Unlocking Server
 `!unlock` Changes the server password to “Medic!”.
