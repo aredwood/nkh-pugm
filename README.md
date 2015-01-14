@@ -5,7 +5,7 @@ Private use only. Designed by da_apple and obla.
 
 Commands
 ------------
-### Changing Server Password
+### Locking Server
 `!lock <password>` will change the password of the server to <password>, then broadcast the new password 	to all players on the server.
 If <password> isn’t given, the plugin will generate a random 4 digit sequence (i.e. 6445), and set it as the server password, also broadcasting the new password to the server.
 
@@ -19,7 +19,8 @@ Example: Locking the server without a desired password.
 da_apple: `!lock`
 [nKH!] Password has been changed to: 5667
 
-'!unlock' Changes the server password to “Medic!”.
+### Unlocking Server
+`!unlock` Changes the server password to “Medic!”.
 	
 Example: unlocking the server.
 
