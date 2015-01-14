@@ -41,12 +41,11 @@ public OnPluginStart(){
 		RegAdminCmd("autolock", autoLock,ADMFLAG_RCON);
 		RegAdminCmd("changemap",mapChange,ADMFLAG_RCON);
 		RegAdminCmd("callspec",callSpec,ADMFLAG_RCON);
-		RegAdminCmd("list",list,ADMFLAG_RCON);
-		RegConsoleCmd("pass",mumble);
+		RegConsoleCmd("mumble",mumble);
 		RegConsoleCmd("pass", pass);
 		RegConsoleCmd("getpass",pass);
 		RegConsoleCmd("getstring",getString);
-
+		RegConsoleCmd("listmaps",listMaps);
 		preAutoLock();
 	//let em know.
 	PrintToServer("nKH! Pug Manager 1.0 loaded.");
@@ -163,11 +162,11 @@ public Action:autoLock(client,args){
 		AutoLockBool = true;
 	}
 	//If the parameters make no sense.
-	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99 && GetCmdArgs() == 1){
+	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99){
 		CPrintToChat(client,"{strange}[nKH!]{white} Incorrent parameters!");
 	}
 	//For disabling autolock.
-	if(AutoLockLimitDesired == 0 || strcmp(AutoLockLimitDesiredString,"off",false) == 0){
+	if(AutoLockLimitDesired == 0){
 		CPrintToChatAll("{strange}[nKH!]{white} Autolock has been disabled.");
 		AutoLockBool = false;
 	}
@@ -304,40 +303,30 @@ public Action:specCall(Handle:timer){
 	ServerCommand("sm_csay SPEC; say SPEC");
 }
 /*
-							This function's main purpose is to dump information.           
+							Maps.     
 */
-public Action:list(client,args){
-	new String:listArgOne[8];
-	new String:listArgTwo[8];
-	GetCmdArg(1,listArgOne,sizeof(listArgOne));
-	GetCmdArg(2,listArgTwo,sizeof(listArgTwo));
-	//If the first parameter is "mumble" the No Kids Here! mumble details are dumped.
-	if(strcmp(listArgOne,"mumble",false) == 0){
-		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
-		CPrintToChatAll("{strange}[nKH!]{white} 119.252.190.75 - Address");
-		CPrintToChatAll("{strange}[nKH!]{white} 64888 - Port");
-	}
-	//manages map list 
-	if(strcmp(listArgOne,"maps",false) == 0 && GetCmdArgs() <= 3){
-		CPrintToChat(client,"{strange}[nKH!]{white} Map listing results for \"%s\" have been outputted to console.", listArgTwo);
-		FakeClientCommand(client,"sm_rcon maps %s",listArgTwo);
-		PrintToConsole(client,"[nKH!] END OF LISTING.");
-	}
+public Action:listMaps(client,args){
+	new String:listMapsArg[16];
+	GetCmdArg(1,listMapsArg,sizeof(listMapsArg));
+	CPrintToChat(client,"{strange}[nKH!]{white} Check console.");
+	FakeClientCommandEx(client,"sm_rcon maps %s",listMapsArg);
 }
 /*
 							Dump Mumble Details
 */
 public Action:mumble(client,args){
-	new String:mubmleArg[4];
-	GetCmdArg(1,mubmleArg,sizeof(mubmleArg));
-	if(strcmp(mubmleArg,"all",false) == 0){
+	new String:mumbleArg[4];
+	GetCmdArg(1,mumbleArg,sizeof(mumbleArg));
+	if(strcmp(mumbleArg,"all",false) == 0){
 		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
 		CPrintToChatAll("{strange}[nKH!]{white} 119.252.190.75 - Address");
 		CPrintToChatAll("{strange}[nKH!]{white} 64888 - Port");
+	}else{
+		CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
+		CPrintToChat(client,"{strange}[nKH!]{white} 119.252.190.75 - Address");
+		CPrintToChat(client,"{strange}[nKH!]{white} 64888 - Port");
 	}
-	CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: 119.252.190.75 | 64888");
-	CPrintToChat(client,"{strange}[nKH!]{white} 119.252.190.75 - Address");
-	CPrintToChat(client,"{strange}[nKH!]{white} 64888 - Port");
+
 }
 
 
