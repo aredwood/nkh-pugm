@@ -42,6 +42,7 @@ public OnPluginStart(){
 		RegAdminCmd("changemap",mapChange,ADMFLAG_RCON);
 		RegAdminCmd("callspec",callSpec,ADMFLAG_RCON);
 		RegAdminCmd("list",list,ADMFLAG_RCON);
+		RegConsoleCmd("pass",mumble);
 		RegConsoleCmd("pass", pass);
 		RegConsoleCmd("getpass",pass);
 		RegConsoleCmd("getstring",getString);
@@ -162,7 +163,7 @@ public Action:autoLock(client,args){
 		AutoLockBool = true;
 	}
 	//If the parameters make no sense.
-	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99 || GetCmdArgs() == 1){
+	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99 && GetCmdArgs() == 1){
 		CPrintToChat(client,"{strange}[nKH!]{white} Incorrent parameters!");
 	}
 	//For disabling autolock.
