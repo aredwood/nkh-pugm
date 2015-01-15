@@ -80,7 +80,7 @@ public OnPluginStart(){
 	//Med drop
 	g_meddrop = CreateConVar("pugm_meddrop","0","DROPPED");
 
-
+	AutoExecConfig(true,"pugm");
 	ServerCommand("exec pugm");
 	PrecacheSound("misc/sniper_railgun_double_kill.wav",true);
 	//let em know.
@@ -260,7 +260,7 @@ public Action:Event_medicDeath(Handle:event,const String:name[],bool:Broadcast){
 		new medIndex = GetClientOfUserId(medID);
 
 		GetClientName(medIndex,medName,sizeof(medName));
-		CPrintToChatAll("{strange}[nKH!] {lightskyblue}%s {white}dropped.",medName);
+		CPrintToChatAll("{strange}[nKH!] {lightskyblue}%s {white}dropped!",medName);
 		for(new tmp = 1; tmp <= CurrentPlayers; tmp++){
 			ClientCommand(tmp,"playgamesound misc/sniper_railgun_double_kill.wav");
 		}
