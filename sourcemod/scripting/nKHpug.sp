@@ -24,39 +24,75 @@ public Plugin:myinfo = {
 	version = "1.1",
 	url = "http://steamcommunity.com/groups/nokidshere"
 };
-	//morecolors.inc needs this for backwars compatibility
-	public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) { 
-   		MarkNativeAsOptional("GetUserMessageType"); 
-   		return APLRes_Success; 
-	}
+/*
+										CVARS
+*/
+
+new Handle:g_defaultpassword = INVALID_HANDLE;
+new Handle:g_thankyoudelay = INVALID_HANDLE;
+new Handle:g_passaccessdefault = INVALID_HANDLE;
+new Handle:g_speccalltimemin = INVALID_HANDLE;
+new Handle:g_speccalltimemax = INVALID_HANDLE;
+new Handle:g_changemapwaittime = INVALID_HANDLE;
+new Handle:g_lockatplayerlimit = INVALID_HANDLE;
+new Handle:g_rip = INVALID_HANDLE;
+
 public OnPluginStart(){
 	//Hooks
 	HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
+	HookEvent("player_death",Event_playerDeath); //When a player dies
 
-	//Allow people with sm_rcon access to use this plugin, makes sense.
-		//Commands
-		RegAdminCmd("lock", passwordLock, ADMFLAG_RCON);
-		RegAdminCmd("unlock", passwordUnlock,ADMFLAG_RCON);
-		RegAdminCmd("autolock", autoLock,ADMFLAG_RCON);
-		RegAdminCmd("changemap",mapChange,ADMFLAG_RCON);
-		RegAdminCmd("callspec",callSpec,ADMFLAG_RCON);
-		RegConsoleCmd("mumble",mumble);
-		RegConsoleCmd("pass", pass);
-		RegConsoleCmd("getpass",pass);
-		RegConsoleCmd("getstring",getString);
-		RegConsoleCmd("listmaps",listMaps);
+	//Admin Commands
+	RegAdminCmd("lock", passwordLock, ADMFLAG_RCON);
+	RegAdminCmd("unlock", passwordUnlock,ADMFLAG_RCON);
+	RegAdminCmd("autolock", autoLock,ADMFLAG_RCON);
+	RegAdminCmd("changemap",mapChange,ADMFLAG_RCON);
+	RegAdminCmd("callspec",callSpec,ADMFLAG_RCON);
+	RegAdminCmd("thisisapug",thisisapug,ADMFLAG_RCON);
+	RegAdminCmd("thisisalobby",thisisalobby,ADMFLAG_RCON);
+	//Public Commands
+	RegConsoleCmd("mumble",mumble);
+	RegConsoleCmd("pass", pass);
+	RegConsoleCmd("getpass",pass);
+	RegConsoleCmd("getstring",getString);
+	RegConsoleCmd("listmaps",listMaps);
+
+	//CVARS
+	//Default password for !unlock.
+	g_defaultpassword = CreateConVar("pugm_defaultpassword","Medic!","Default password for !unlock");
+	//A value of atleast 3.0 is best.
+	g_thankyoudelay = CreateConVar("pugm_thankyoudelay","3.0","Ammount to delay the thank you message after the game ends.");
+	//Should almost always be true.
+	g_passaccessdefault = CreateConVar("pugm_passaccessdefault","1","Enable commands such as: !pass, !getpass, and !getstring by default.");
+	//Minimum value to wait before calling spec.
+	g_speccalltimemin = CreateConVar("pugm_speccalltimemin","5.0","Minimum ammount of time to wait before calling spec.");
+	//Maximum value to wait before calling spec.
+	g_speccalltimemax = CreateConVar("pugm_speccalltimemax","7.0","Maximum ammount of time to wait before calling spec.");
+	//TIme to wait before changing map.
+	g_changemapwaittime = CreateConVar("pugm_changemapwaittime","5.0","Time to wait after !changemap before changing the map.");
+	//Either lock the server or print a message when the server has reached it's player limit.
+	g_lockatplayerlimit = CreateConVar("pugm_lockatplayerlimit","0","Whether to lock at playerlimit or to just say it's full.");
+	//rip
+	g_rip = CreateConVar("pugm_rip","0","rip");
+
+	AutoExecConfig(true,"pugm");
+
 	//let em know.
-	PrintToServer("nKH! Pug Manager 1.0 loaded.");
+	PrintToServer("nKH! Pug Manager 1.1 loaded.");
+}
+//morecolors.inc needs this for backwars compatibility
+public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) { 
+   	MarkNativeAsOptional("GetUserMessageType"); 
+   	return APLRes_Success; 
 }
 //A small thank you message.
 new bool:thankYouInProgress = false;
 public Action:Event_gameOver(Handle:event, String:name[], bool:dontBroadcast){
 	if(thankYouInProgress == false){
 		thankYouInProgress = true;
-		new Float:thankYouDelay = 2.0;
+		new Float:thankYouDelay = GetConVarFloat(g_thankyoudelay);
 		CreateTimer(thankYouDelay,thankYouDisplay);
-
 	}
 
 }
@@ -65,7 +101,6 @@ public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
 	thankYouInProgress = false;
 }
-
 /*                                                      
 							Function that manages password locking.
 
@@ -99,27 +134,53 @@ public Action:passwordLock(client,args){
 										Function that manages unlocking.	
 */
 public Action:passwordUnlock(client,args){
-	ServerCommand("lock Medic!");
+	new String:defaultPassword[16];
+	GetConVarString(g_defaultpassword,defaultPassword,sizeof(defaultPassword));
+	ServerCommand("lock %s",defaultPassword);
+}
+/*
+										When a player dies
+*/
+public Action:Event_playerDeath(Handle:event,const String:name[],bool:Broadcast){
+	if(GetConVarInt(g_rip) == 1){
+		new deadeeId = GetEventInt(event,"userid");
+		new deadee = GetClientOfUserId(deadeeId);
+		CPrintToChat(deadee,"{strange}[nKH!]{white} rip");
+	}
+	return Plugin_Handled;
 }
 /*                                              
 										Function that manages autolocking (actually the most useful feature of this plugin.)
 */
-
 //Why isn't there a tag for integers?
 new CurrentPlayers;
-new bool:AutoLockBool = false;
 new AutoLockLimit; //This varible was actually a float at some stage.
 new PlayerDifference;
+new bool:AutoLockBool = false;
 new bool:printInProgress = false;
+new bool:lockatplayerlimit = false;
+
 //Function to check whether to lock
 public DoAutoLock(){
+	if(GetConVarInt(g_lockatplayerlimit) == 1){
+		lockatplayerlimit = true;
+	}
+	if(GetConVarInt(g_lockatplayerlimit) == 0){
+		lockatplayerlimit = false;
+	}
 	if(CurrentPlayers >= AutoLockLimit && AutoLockBool == true){
-		ServerCommand("lock");
-		CPrintToChatAll("{strange}[nKH!]{white} Player limit reached, server locked.");
-		AutoLockBool = false;
+		if(lockatplayerlimit == true){
+			ServerCommand("lock");
+			CPrintToChatAll("{strange}[nKH!]{white} Player limit reached, server locked.");
+			AutoLockBool = false;
+		}
+		if(lockatplayerlimit == false){
+			CPrintToChatAll("{strange}[nKH!]{white} Players required reached, let's play!");
+			AutoLockBool = false;
+		}
 	}
 	if(CurrentPlayers < AutoLockLimit && AutoLockBool == true){
-		PlayerDifference = AutoLockLimit - CurrentPlayers;
+
 		if(printInProgress == false){
 			CreateTimer(3.0,playersLeft);
 			printInProgress = true;
@@ -128,6 +189,7 @@ public DoAutoLock(){
 	}
 }
 public Action:playersLeft(Handle:timer){
+	PlayerDifference = AutoLockLimit - CurrentPlayers;
 	if(PlayerDifference == 1){
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}%i {white}%s short.",PlayerDifference,"player");
 	}
@@ -175,11 +237,32 @@ public OnClientDisconnect(client){
 	CurrentPlayers = CurrentPlayers - 1; //validate
 	DoAutoLock();
 }
+/*
+										Executes pugm config
+*/
+public Action:thisisapug(client,args){
+	ServerCommand("exec pugm");
+	CPrintToChatAll("{strange}[nKH!]{white} pugm config executed.");
+}
+/*
+										Executes TF2C config
+*/
+public Action:thisisalobby(client,args){
+	ServerCommand("exec TF2Center");
+	CPrintToChatAll("{strange}[nKH!]{white} TF2Center config executed.");
+}
 /*                                                                                                                 
 										Function to manage !getpass and !pass.
 */
-new bool:GetPass = true; //Getstring shares this.
+
+new bool:GetPass;
 public Action:pass(client,args){
+	if(GetConVarInt(g_passaccessdefault) == 1){
+		GetPass = true;
+	}
+	if(GetConVarInt(g_passaccessdefault) == 0){
+		GetPass = false;
+	}
 	if(GetCmdArgs() < 1 && GetPass == true){
 		//Get's password.
 		new Handle:CurrentPasswordHandler = FindConVar("sv_password");
@@ -264,9 +347,11 @@ public Action:mapChange(client,args){
 		strcopy(MapName,sizeof(MapName),MapInput);
 	}
 	if(IsMapValid(MapName)){
-		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {lightskyblue}%s{white} in 5 seconds.",MapName);
+		new Float:waitTime = GetConVarFloat(g_changemapwaittime);
+		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {lightskyblue}%s{white} in %f seconds.",MapName,waitTime);
 		//Whole purpose of the timer is to alert players of the map change.
-		CreateTimer(5.0,MapTimer);
+
+		CreateTimer(waitTime,MapTimer);
 	}else{
 		//When a map that isn't installed is given, or something like !changemap SWAGBOIZE happens.
 		CPrintToChat(client,"{strange}[nKH!]{white} Map not found, likely spelt incorrectly or not installed.");
@@ -280,8 +365,9 @@ public Action:MapTimer(Handle:timer){
 							Function to manage spec calling.
 */
 public Action:callSpec(client,args){
-	//It's safe to edit this.
-	new Float:specTime = GetRandomFloat(5.0,7.0); 
+	new Float:specMinTime = GetConVarFloat(g_speccalltimemin);
+	new Float:specMaxTime = GetConVarFloat(g_speccalltimemax);
+	new Float:specTime = GetRandomFloat(specMinTime,specMaxTime); 
 	CreateTimer(specTime,specCall);
 	//GIves out the warning.
 	CPrintToChatAll("{strange}[nKH!]{white} WARNING, SPEC CALL IMMINENT!");
@@ -310,12 +396,12 @@ public Action:mumble(client,args){
 		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
-	}else{
-		CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
-		CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
-		CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
+		return Plugin_Handled;
 	}
-
+	CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
+	CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
+	CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
+	return Plugin_Handled;
 }
 
 
