@@ -435,6 +435,7 @@ public Action:mumble(client,args){
 		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
+		return Plugin_Handled;
 	}
 	CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
 	CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
