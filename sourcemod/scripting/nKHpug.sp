@@ -36,12 +36,14 @@ new Handle:g_speccalltimemax = INVALID_HANDLE;
 new Handle:g_changemapwaittime = INVALID_HANDLE;
 new Handle:g_lockatplayerlimit = INVALID_HANDLE;
 new Handle:g_rip = INVALID_HANDLE;
+new Handle:g_meddrop = INVALID_HANDLE;
 
 public OnPluginStart(){
 	//Hooks
 	HookEvent("teamplay_game_over", Event_gameOver);	//Event for when game ends.
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
 	HookEvent("player_death",Event_playerDeath); //When a player dies
+	HookEvent("medic_death",Event_medicDeath);
 
 	//Admin Commands
 	RegAdminCmd("lock", passwordLock, ADMFLAG_RCON);
@@ -75,9 +77,12 @@ public OnPluginStart(){
 	g_lockatplayerlimit = CreateConVar("pugm_lockatplayerlimit","0","Whether to lock at playerlimit or to just say it's full.");
 	//rip
 	g_rip = CreateConVar("pugm_rip","0","rip");
+	//Med drop
+	g_meddrop = CreateConVar("pugm_meddrop","0","DROPPED");
 
-	AutoExecConfig(true,"pugm");
 
+	ServerCommand("exec pugm");
+	PrecacheSound("misc/sniper_railgun_double_kill.wav",true);
 	//let em know.
 	PrintToServer("nKH! Pug Manager 1.1 loaded.");
 }
@@ -94,12 +99,13 @@ public Action:Event_gameOver(Handle:event, String:name[], bool:dontBroadcast){
 		new Float:thankYouDelay = GetConVarFloat(g_thankyoudelay);
 		CreateTimer(thankYouDelay,thankYouDisplay);
 	}
-
+	return Plugin_Handled;
 }
 public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} Thank you for playing on nKH!");
 	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
 	thankYouInProgress = false;
+	return Plugin_Handled;
 }
 /*                                                      
 							Function that manages password locking.
@@ -118,7 +124,6 @@ public Action:passwordLock(client,args){
 		}
 		ServerCommand("sv_password %s",passwordLockGenerated);
 		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {lightskyblue}%s",passwordLockGenerated);
- 
 	}
 	else{
 		//desired password, hopefully people won't use a password with >32 characters.
@@ -129,6 +134,7 @@ public Action:passwordLock(client,args){
 		ServerCommand("sv_password %s",passwordLockDesired);
 		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {lightskyblue}%s",passwordLockDesired);
 	}
+	return Plugin_Handled;
 }
 /*
 										Function that manages unlocking.	
@@ -137,6 +143,7 @@ public Action:passwordUnlock(client,args){
 	new String:defaultPassword[16];
 	GetConVarString(g_defaultpassword,defaultPassword,sizeof(defaultPassword));
 	ServerCommand("lock %s",defaultPassword);
+	return Plugin_Handled;
 }
 /*
 										When a player dies
@@ -149,6 +156,7 @@ public Action:Event_playerDeath(Handle:event,const String:name[],bool:Broadcast)
 	}
 	return Plugin_Handled;
 }
+
 /*                                              
 										Function that manages autolocking (actually the most useful feature of this plugin.)
 */
@@ -186,7 +194,11 @@ public DoAutoLock(){
 			printInProgress = true;
 		}
 
+
+
+
 	}
+	return Plugin_Handled;
 }
 public Action:playersLeft(Handle:timer){
 	PlayerDifference = AutoLockLimit - CurrentPlayers;
@@ -238,11 +250,31 @@ public OnClientDisconnect(client){
 	DoAutoLock();
 }
 /*
+										Medic Death
+*/
+public Action:Event_medicDeath(Handle:event,const String:name[],bool:Broadcast){
+	//sm_rcon sm_play @all misc/sniper_railgun_double_kill.wav
+	if(GetConVarInt(g_meddrop) == 1 && GetEventBool(event,"charged") == true){
+		new medID = GetEventInt(event,"userid");
+		new String:medName[33];
+		new medIndex = GetClientOfUserId(medID);
+
+		GetClientName(medIndex,medName,sizeof(medName));
+		CPrintToChatAll("{strange}[nKH!] {lightskyblue}%s {white}dropped.",medName);
+		for(new tmp = 1; tmp <= CurrentPlayers; tmp++){
+			ClientCommand(tmp,"playgamesound misc/sniper_railgun_double_kill.wav");
+		}
+
+	}
+	return Plugin_Handled;
+}
+/*
 										Executes pugm config
 */
 public Action:thisisapug(client,args){
-	ServerCommand("exec pugm");
+	ServerCommand("exec pug");
 	CPrintToChatAll("{strange}[nKH!]{white} pugm config executed.");
+	return Plugin_Handled;
 }
 /*
 										Executes TF2C config
@@ -250,6 +282,7 @@ public Action:thisisapug(client,args){
 public Action:thisisalobby(client,args){
 	ServerCommand("exec TF2Center");
 	CPrintToChatAll("{strange}[nKH!]{white} TF2Center config executed.");
+	return Plugin_Handled;
 }
 /*                                                                                                                 
 										Function to manage !getpass and !pass.
@@ -270,6 +303,7 @@ public Action:pass(client,args){
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
 		//CPrint password to client.
 		CPrintToChat(client,"{strange}[nKH!]{white} Current password is: {lightskyblue}%s",CurrentPassword);
+
 	}
 	//If someone requests the password, but it has been disabled by an admin.
 	if(GetCmdArgs() < 1 && GetPass == false){
@@ -289,6 +323,7 @@ public Action:pass(client,args){
 			CPrintToChatAll("{strange}[nKH!]{white} !pass has been disabled.");
 		}
 	}
+	return Plugin_Handled;
 }
 /*
 							Function to control !getstring
@@ -325,6 +360,7 @@ public Action:getString(client,args){
 	if(GetCmdArgs() < 1 && GetPass == false){
 		CPrintToChat(client,"{strange}[nKH!]{white} !getstring has been disabled by an administrator.");
 	}
+	return Plugin_Handled;
 }
 /*                                             
 							Function to manage map changing. (Please note, that the only advantage to using this feature is that players will get a warning before the map changes.)
@@ -356,6 +392,7 @@ public Action:mapChange(client,args){
 		//When a map that isn't installed is given, or something like !changemap SWAGBOIZE happens.
 		CPrintToChat(client,"{strange}[nKH!]{white} Map not found, likely spelt incorrectly or not installed.");
 	}
+	return Plugin_Handled;
 }
 public Action:MapTimer(Handle:timer){
 	//Change the map.
@@ -372,6 +409,7 @@ public Action:callSpec(client,args){
 	//GIves out the warning.
 	CPrintToChatAll("{strange}[nKH!]{white} WARNING, SPEC CALL IMMINENT!");
 	ServerCommand("sm_csay WARNING");
+	return Plugin_Handled;
 }
 //Call Spec.
 public Action:specCall(Handle:timer){
@@ -385,6 +423,7 @@ public Action:listMaps(client,args){
 	GetCmdArg(1,listMapsArg,sizeof(listMapsArg));
 	CPrintToChat(client,"{strange}[nKH!]{white} Check console for output.");
 	FakeClientCommandEx(client,"sm_rcon maps %s",listMapsArg);
+	return Plugin_Handled;
 }
 /*
 							Dump Mumble Details
@@ -396,7 +435,6 @@ public Action:mumble(client,args){
 		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
 		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
-		return Plugin_Handled;
 	}
 	CPrintToChat(client,"{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
 	CPrintToChat(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
