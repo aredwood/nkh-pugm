@@ -1,8 +1,6 @@
 /*
 	nKH! Pug Manager
 	by da_apple
-	it's my first plugin OK! :(
-	I wonder if this will be of any use.
 */
 #pragma semicolon 1
 #include <sourcemod>
@@ -19,7 +17,7 @@
 /*
 										CVARS
 */
-
+//Handles for cvars.
 new Handle:g_defaultpassword = INVALID_HANDLE;
 new Handle:g_thankyoudelay = INVALID_HANDLE;
 new Handle:g_passaccessdefault = INVALID_HANDLE;
@@ -38,10 +36,10 @@ public OnPluginStart(){
 	HookEvent("tf_game_over", Event_gameOver);			//Event for when game ends.
 	HookEvent("player_death",Event_playerDeath); //When a player dies
 	HookEvent("medic_death",Event_medicDeath);
-	
 	//Command listners
 	AddCommandListener(joinTeamCmd, "jointeam");
 	AddCommandListener(joinTeamCmd,"spectate");
+	//AddCommandListener(mapChange,"changelevel");
 	//Admin Commands
 	RegAdminCmd("lock", passwordLock, ADMFLAG_RCON);
 	RegAdminCmd("unlock", passwordUnlock,ADMFLAG_RCON);
@@ -50,7 +48,11 @@ public OnPluginStart(){
 	RegAdminCmd("callspec",callSpec,ADMFLAG_RCON);
 	RegAdminCmd("thisisapug",thisisapug,ADMFLAG_RCON);
 	RegAdminCmd("thisisalobby",thisisalobby,ADMFLAG_RCON);
+	RegAdminCmd("meddrop",meddrop,ADMFLAG_RCON);
+	RegAdminCmd("rip",rip,ADMFLAG_RCON);
+	RegAdminCmd("config",config,ADMFLAG_RCON);
 	//Public Commands
+	RegConsoleCmd("players",players);
 	RegConsoleCmd("mumble",mumble);
 	RegConsoleCmd("pass", pass);
 	RegConsoleCmd("getpass",pass);
@@ -58,6 +60,7 @@ public OnPluginStart(){
 	RegConsoleCmd("listmaps",listMaps);
 
 	//CVARS
+
 	//Default password for !unlock.
 	g_defaultpassword = CreateConVar("pugm_defaultpassword","Medic!","Default password for !unlock");
 	//A value of atleast 3.0 is best.
@@ -69,7 +72,7 @@ public OnPluginStart(){
 	//Maximum value to wait before calling spec.
 	g_speccalltimemax = CreateConVar("pugm_speccalltimemax","7.0","Maximum ammount of time to wait before calling spec.");
 	//TIme to wait before changing map.
-	g_changemapwaittime = CreateConVar("pugm_changemapwaittime","5.0","Time to wait after !changemap before changing the map.");
+	g_changemapwaittime = CreateConVar("pugm_changemapwaittime","3","Time to wait after !changemap before changing the map.");
 	//Either lock the server or print a message when the server has reached it's player limit.
 	g_lockatplayerlimit = CreateConVar("pugm_lockatplayerlimit","0","Whether to lock at playerlimit or to just say it's full.");
 	//rip
@@ -83,8 +86,8 @@ public OnPluginStart(){
 
 	AutoExecConfig(true,"pugm");
 	ServerCommand("exec pugm");
-	//Don't think precaching is necessary. 
-	PrecacheSound("misc/sniper_railgun_double_kill.wav",true);
+
+
 }
 /*
 							Execute autolock on map start, if enabled.
@@ -95,6 +98,8 @@ public OnMapStart(){
 		//Set autolock to lock at pugm_autolockdefaultvalue.
 		ServerCommand("autolock %i",GetConVarInt(g_autolockdefaultvalue));
 	}
+
+
 }
 
 //morecolors.inc needs this for backwars compatibility
@@ -104,7 +109,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) 
 }
 
 /*
-							Function that manages the "thankyou" message, at the end of every game
+							Function that manages callbacks that happen on game end and start.
 */
 //Used to prevent the message triggering twice.
 new bool:thankYouInProgress = false;
@@ -122,7 +127,6 @@ public Action:thankYouDisplay(Handle:timer){
 	thankYouInProgress = false;
 	return Plugin_Handled;
 }
-
 /*                                                      
 							Function that manages password locking.
 */
@@ -139,7 +143,7 @@ public Action:passwordLock(client,args){
 			passwordLockGenerated[i] = Nums[RandomNum];
 		}
 		ServerCommand("sv_password %s",passwordLockGenerated);
-		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {lightskyblue}%s",passwordLockGenerated);
+		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {community}%s",passwordLockGenerated);
 	}
 	else{
 		//desired password, hopefully people won't use a password with >32 characters.
@@ -148,7 +152,7 @@ public Action:passwordLock(client,args){
 	
 		//Change password
 		ServerCommand("sv_password %s",passwordLockDesired);
-		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {lightskyblue}%s",passwordLockDesired);
+		CPrintToChatAll("{strange}[nKH!]{white} Password has been changed to: {community}%s",passwordLockDesired);
 	}
 	return Plugin_Handled;
 }
@@ -174,7 +178,29 @@ public Action:Event_playerDeath(Handle:event,const String:name[],bool:Broadcast)
 	}
 	return Plugin_Handled;
 }
-
+public Action:rip(client,args){
+	if(GetCmdArgs() < 1){
+		if(GetConVarInt(g_rip) == 0){
+			CReplyToCommand(client,"{strange}[nKH!]{white} Player death alerts are: {community}OFF");
+		}
+		if(GetConVarInt(g_rip) == 1){
+			CReplyToCommand(client,"{strange}[nKH!]{white} Player death are: {community}ON");
+		}
+	}
+	if(GetCmdArgs() == 1){
+		new String:argOne[5];
+		GetCmdArg(1,argOne,sizeof(argOne));
+		if(strcmp(argOne,"on",false) == 0 || strcmp(argOne,"1",false) == 0){
+			SetConVarInt(g_rip,1);
+			CPrintToChatAll("{strange}[nKH!]{white} Player death alerts have been enabled.");
+		}
+		if(strcmp(argOne,"off",false) == 0 || strcmp(argOne,"0",false) == 0){
+			SetConVarInt(g_rip,0);
+			CPrintToChatAll("{strange}[nKH!]{white} Player death alerts have been disabled.");
+		}
+	}
+	return Plugin_Handled;
+}
 /*                                              
 							Function that manages autolocking (actually the most useful feature of this plugin.)
 */
@@ -212,15 +238,15 @@ public DoAutoLock(){
 			printInProgress = true;
 		}
 	}
-	return Plugin_Handled;
+	//return Plugin_Handled;
 }
 public Action:playersLeft(Handle:timer){
 	PlayerDifference = AutoLockLimit - CurrentPlayers;
 	if(PlayerDifference == 1){
-		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}%i {white}%s short.",PlayerDifference,"player");
+		CPrintToChatAll("{strange}[nKH!]{white} {community}%i {white}%s short.",PlayerDifference,"player");
 	}
 	if(PlayerDifference > 1){
-		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}%i {white}%s short.",PlayerDifference,"players");
+		CPrintToChatAll("{strange}[nKH!]{white} {community}%i {white}%s short.",PlayerDifference,"players");
 	}
 	printInProgress = false;
 }
@@ -234,20 +260,26 @@ public Action:autoLock(client,args){
 	new AutoLockLimitDesired = StringToInt(AutoLockLimitDesiredString);
 	//If I wanted to be smart, i'd make it so that the desired limit would be <= MaxPlayers.
 	if(AutoLockLimitDesired > 0 && AutoLockLimitDesired < 99){
-		//CPrintToChat(client,"{strange}[nKH!]{white} Server will automatically lock when {lightskyblue}%i{white} players have connected.",AutoLockLimitDesired);
-		CReplyToCommand(client,"{strange}[nKH!]{white} Server will automatically lock when {lightskyblue}%i{white} players have connected.",AutoLockLimitDesired);
+		CReplyToCommand(client,"{strange}[nKH!]{white} Server will automatically lock when {community}%i{white} players have connected.",AutoLockLimitDesired);
 		AutoLockLimit = AutoLockLimitDesired;
 		AutoLockBool = true;
 	}
 	//If the parameters make no sense.
 	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99){
-		//CPrintToChat(client,"{strange}[nKH!]{white} Incorrent parameters!");
-		CReplyToCommand(client,"{strange}[nKH!]{white} Incorrent parameters!");
+		CReplyToCommand(client,"{strange}[nKH!]{white} Incorrent player limit.");
 	}
 	//For disabling autolock.
 	if(AutoLockLimitDesired == 0){
 		CPrintToChatAll("{strange}[nKH!]{white} Autolock has been disabled.");
 		AutoLockBool = false;
+	}
+	if(GetCmdArgs() == 0){
+		if(AutoLockBool){
+			CPrintToChat(client,"{strange}[nKH!]{white} {community}%i {white}players, locking at {community}%i{white}.",CurrentPlayers,AutoLockLimit);
+		}
+		if(!AutoLockBool){
+			CPrintToChat(client,"{strange}[nKH!]{white} Autolock is disabled.");
+		}
 	}
 	DoAutoLock();
 	return Plugin_Handled;
@@ -267,7 +299,69 @@ public OnClientDisconnect(client){
 		DoAutoLock();
 	}
 }
+/*
+							!config
+*/
 
+public Action:config(client,args){
+	if(GetCmdArgs() < 1){
+		new String:map[20];
+		GetCurrentMap(map,sizeof(map));
+
+		new bool:configFound = false;
+		if(StrContains(map,"ultiduo",false) != -1){
+			ServerCommand("exec ultiduo");
+			configFound = true;
+			return Plugin_Handled;
+		}
+		if(StrContains(map,"koth_",false) != -1){
+			ServerCommand("exec ugc_HL_koth");
+			configFound = true;
+		}
+		if(StrContains(map,"pl_",false) != -1){
+			ServerCommand("exec ugc_HL_stopwatch");
+			configFound = true;
+		}
+		if(StrContains(map,"cp_",false) != -1){
+			ServerCommand("exec ugc_HL_standard");
+			if(StrContains(map,"cp_steel",false) != -1){
+				ServerCommand("exec ugc_HL_stopwatch");
+			}
+			configFound = true;
+		}
+		if(StrContains(map,"ctf_",false) != -1){
+			ServerCommand("exec ugc_HL_ctf");
+			configFound = true;
+		}
+
+		if(!configFound){
+			CReplyToCommand(client,"{strange}[nKH!] lol, apple didn't do this correctly.");
+		}
+	}
+	return Plugin_Handled;	
+}
+
+/*
+							!players, people wanted it.
+*/
+public Action:players(client,args){
+	if(GetCmdArgs() < 1 && AutoLockBool == true){
+		CReplyToCommand(client,"{strange}[nKH!]{community}%i {white}players short, server will lock at {community}%i{white}.",PlayerDifference,AutoLockLimit);
+	}
+	if(GetCmdArgs() < 1 && AutoLockBool == false){
+		CReplyToCommand(client,"{strange}[nKH!] {community}%i {white}players.",CurrentPlayers);
+	}
+	if(GetCmdArgs() == 1){
+		new String:playerArg[5];
+		GetCmdArg(1,playerArg,sizeof(playerArg));
+		if(strcmp(playerArg,"all",false) == 0){
+			if(CheckCommandAccess(client,"sm_rcon",ADMFLAG_RCON,true)){
+				CPrintToChatAll("{strange}[nKH!]{community} %i {white} players short.",PlayerDifference);
+			}	
+		}
+	}
+	return Plugin_Handled;
+}
 /*
 							Medic Death
 */
@@ -282,9 +376,32 @@ public Action:Event_medicDeath(Handle:event,const String:name[],bool:Broadcast){
 
 		GetClientName(medIndex,medName,sizeof(medName));
 		//[nKH!] drop queen dropped.
-		CPrintToChatAll("{strange}[nKH!] {lightskyblue}%s {white}dropped!",medName);
+		CPrintToChatAll("{strange}[nKH!] {community}%s {white}dropped!",medName);
 		for(new tmp = 1; tmp <= CurrentPlayers; tmp++){
-			ClientCommand(tmp,"playgamesound player/medic_charged_death.wav; playgamesound misc/sniper_railgun_double_kill.wav; playgamesound player/medic_charged_death.wav");
+			ClientCommand(tmp,"playgamesound player/medic_charged_death.wav; playgamesound misc/sniper_railgun_double_kill.wav");
+		}
+	}
+	return Plugin_Handled;
+}
+public Action:meddrop(client,args){
+	if(GetCmdArgs() < 1){
+		if(GetConVarInt(g_meddrop) == 0){
+			CReplyToCommand(client,"{strange}[nKH!]{white} Medic drop alerts are: {community}OFF");
+		}
+		if(GetConVarInt(g_meddrop) == 1){
+			CReplyToCommand(client,"{strange}[nKH!]{white} Medic drop alerts are: {community}ON");
+		}
+	}
+	if(GetCmdArgs() == 1){
+		new String:argOne[5];
+		GetCmdArg(1,argOne,sizeof(argOne));
+		if(strcmp(argOne,"on",false) == 0 || strcmp(argOne,"1",false) == 0){
+			SetConVarInt(g_meddrop,1);
+			CPrintToChatAll("{strange}[nKH!]{white} Medic drop alerts have been enabled.");
+		}
+		if(strcmp(argOne,"off",false) == 0 || strcmp(argOne,"0",false) == 0){
+			SetConVarInt(g_meddrop,0);
+			CPrintToChatAll("{strange}[nKH!]{white} Medic drop alerts have been disabled.");
 		}
 	}
 	return Plugin_Handled;
@@ -308,7 +425,6 @@ public Action:thisisalobby(client,args){
 /*                                                                                                                 
 							Function to manage !getpass and !pass.
 */
-
 new bool:GetPass;
 public Action:pass(client,args){
 	if(GetConVarInt(g_passaccessdefault) == 1){
@@ -323,8 +439,8 @@ public Action:pass(client,args){
 		decl String:CurrentPassword[64];
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
 		//CPrint password to client.
-		//CPrintToChat(client,"{strange}[nKH!]{white} Current password is: {lightskyblue}%s",CurrentPassword);
-		CReplyToCommand(client,"{strange}[nKH!]{white} Current password is: {lightskyblue}%s",CurrentPassword);
+		//CPrintToChat(client,"{strange}[nKH!]{white} Current password is: {community}%s",CurrentPassword);
+		CReplyToCommand(client,"{strange}[nKH!]{white} Current password is: {community}%s",CurrentPassword);
 
 	}
 	//If someone requests the password, but it has been disabled by an admin.
@@ -334,7 +450,7 @@ public Action:pass(client,args){
 	}
 
 	//Controls the enabling and disabling of !pass and !getpass.
-	if(CheckCommandAccess(client,"pass",ADMFLAG_RCON)){
+	if(CheckCommandAccess(client,"sm_rcon",ADMFLAG_RCON,true)){
 		new String:PassArgOne[4];
 		GetCmdArg(1,PassArgOne,4);
 		if(strcmp(PassArgOne,"on",false) == 0){
@@ -376,9 +492,9 @@ public Action:getString(client,args){
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
 		//CPrint password to client.
 		//CPrintToChat(client,"{strange}[nKH!]{white} Connect string has also been given in console.");
-		//CPrintToChat(client,"{lightskyblue}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
+		//CPrintToChat(client,"{community}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
 		CReplyToCommand(client,"{strange}[nKH!]{white} Connect string has also been given in console.");
-		CReplyToCommand(client,"{lightskyblue}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
+		CReplyToCommand(client,"{community}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
 		PrintToConsole(client,"connect %s:%s; password %s //%s",ip,hostport,CurrentPassword,hostname);
 	}
 	//Client requested the string, but GetPass was set to false.
@@ -410,11 +526,10 @@ public Action:mapChange(client,args){
 		strcopy(MapName,sizeof(MapName),MapInput);
 	}
 	if(IsMapValid(MapName)){
-		new Float:waitTime = GetConVarFloat(g_changemapwaittime);
-		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {lightskyblue}%s{white} in %f seconds.",MapName,waitTime);
+		new waitTime = GetConVarInt(g_changemapwaittime);
+		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {community}%s{white} in %f seconds.",MapName,waitTime);
 		//Whole purpose of the timer is to alert players of the map change.
-
-		CreateTimer(waitTime,MapTimer);
+		CreateTimer(float(waitTime),MapTimer);
 	}else{
 		//When a map that isn't installed is given, or something like !changemap SWAGBOIZE happens.
 		//CPrintToChat(client,"{strange}[nKH!]{white} Map not found, likely spelt incorrectly or not installed.");
@@ -441,7 +556,7 @@ public Action:callSpec(client,args){
 	ServerCommand("sm_csay WARNING");
 	return Plugin_Handled;
 }
-public Action:joinTeamCmd(client, const String:command[], argc){
+public Action:joinTeamCmd(client, const String:command[], args){
 
 	decl String:argWhole[11];
 	decl String:argOne[11];
@@ -453,7 +568,6 @@ public Action:joinTeamCmd(client, const String:command[], argc){
 			return Plugin_Handled;
 		}
 	}
-
 	return Plugin_Continue;
 }
 //Call Spec.
@@ -479,14 +593,16 @@ public Action:mumble(client,args){
 	new String:mumbleArg[4];
 	GetCmdArg(1,mumbleArg,sizeof(mumbleArg));
 	if(strcmp(mumbleArg,"all",false) == 0){
-		CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
-		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
-		CPrintToChatAll("{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
-		return Plugin_Handled;
+		if(CheckCommandAccess(client,"sm_rcon",ADMFLAG_RCON,true)){
+			CPrintToChatAll("{strange}[nKH!]{white} nKH! Mumble is: {community}119.252.190.75 {white}| {community}64888");
+			CPrintToChatAll("{strange}[nKH!]{white} {community}119.252.190.75{white} - Address");
+			CPrintToChatAll("{strange}[nKH!]{white} {community}64888{white} - Port");
+			return Plugin_Handled;
+		}
 	}
-	CReplyToCommand(client,"{strange}[nKH!]{white} nKH! Mumble is: {lightskyblue}119.252.190.75 {white}| {lightskyblue}64888");
-	CReplyToCommand(client,"{strange}[nKH!]{white} {lightskyblue}119.252.190.75{white} - Address");
-	CReplyToCommand(client,"{strange}[nKH!]{white} {lightskyblue}64888{white} - Port");
+	CReplyToCommand(client,"{strange}[nKH!]{white} nKH! Mumble is: {community}119.252.190.75 {white}| {community}64888");
+	CReplyToCommand(client,"{strange}[nKH!]{white} {community}119.252.190.75{white} - Address");
+	CReplyToCommand(client,"{strange}[nKH!]{white} {community}64888{white} - Port");
 	return Plugin_Handled;
 }
 
@@ -494,6 +610,6 @@ public Plugin:myinfo = {
 	name = "nKH! Pug Manager",
 	author = "da_apple",
 	description = "Simplifys Pug management",
-	version = "1.2",
+	version = "1.3",
 	url = "http://steamcommunity.com/groups/nokidshere"
 };
