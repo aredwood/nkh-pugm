@@ -552,7 +552,7 @@ public Action:callSpec(client,args){
 	new Float:specTime = GetRandomFloat(specMinTime,specMaxTime); 
 	CreateTimer(specTime,specCall);
 	//GIves out the warning.
-	CPrintToChatAll("{strange}[nKH!]{white} WARNING, SPEC CALL IMMINENT!");
+	CPrintToChatAll("{strange}[nKH!]{white} WARNING, CALLING SOON.");
 	ServerCommand("sm_csay WARNING");
 	return Plugin_Handled;
 }
