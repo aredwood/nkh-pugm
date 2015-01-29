@@ -266,7 +266,7 @@ public Action:autoLock(client,args){
 	}
 	//If the parameters make no sense.
 	if(AutoLockLimitDesired < 0 || AutoLockLimitDesired > 99){
-		CReplyToCommand(client,"{strange}[nKH!]{white} Incorrent player limit.");
+		CReplyToCommand(client,"{strange}[nKH!]{white} Incorrect player limit.");
 	}
 	//For disabling autolock.
 	if(AutoLockLimitDesired == 0){
