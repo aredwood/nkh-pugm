@@ -1,2 +1,1 @@
-Line 269 fix incorrent
-!thisisapug turns on meddrop 1 as well
+!getstring does not show in console
