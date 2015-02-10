@@ -39,14 +39,13 @@ public OnPluginStart(){
 	//Command listners
 	AddCommandListener(joinTeamCmd, "jointeam");
 	AddCommandListener(joinTeamCmd,"spectate");
-	//AddCommandListener(mapChange,"changelevel");
 	//Admin Commands
 	RegAdminCmd("lock", passwordLock, ADMFLAG_RCON);
 	RegAdminCmd("unlock", passwordUnlock,ADMFLAG_RCON);
 	RegAdminCmd("autolock", autoLock,ADMFLAG_RCON);
-	RegAdminCmd("changemap",mapChange,ADMFLAG_RCON);
 	RegAdminCmd("callspec",callSpec,ADMFLAG_RCON);
 	RegAdminCmd("thisisapug",thisisapug,ADMFLAG_RCON);
+	RegAdminCmd("changemap",mapChange,ADMFLAG_RCON);
 	RegAdminCmd("thisisalobby",thisisalobby,ADMFLAG_RCON);
 	RegAdminCmd("meddrop",meddrop,ADMFLAG_RCON);
 	RegAdminCmd("rip",rip,ADMFLAG_RCON);
@@ -98,8 +97,6 @@ public OnMapStart(){
 		//Set autolock to lock at pugm_autolockdefaultvalue.
 		ServerCommand("autolock %i",GetConVarInt(g_autolockdefaultvalue));
 	}
-
-
 }
 
 //morecolors.inc needs this for backwars compatibility
@@ -123,7 +120,7 @@ public Action:Event_gameOver(Handle:event, String:name[], bool:dontBroadcast){
 public Action:thankYouDisplay(Handle:timer){
 	CPrintToChatAll("{strange}[nKH!]{white} Thank you for playing on nKH!");
 	//Group link is far to long to fit within 1 line of in game chat. 
-	CPrintToChatAll("{strange}[nKH!]{white} http://steamcommunity.com/groups/NoKidsHerePugsandLobbies");
+	CPrintToChatAll("{strange}[nKH!]{white} /groups/NoKidsHerePugsandLobbies");
 	thankYouInProgress = false;
 	return Plugin_Handled;
 }
@@ -356,7 +353,7 @@ public Action:players(client,args){
 		GetCmdArg(1,playerArg,sizeof(playerArg));
 		if(strcmp(playerArg,"all",false) == 0){
 			if(CheckCommandAccess(client,"sm_rcon",ADMFLAG_RCON,true)){
-				CPrintToChatAll("{strange}[nKH!]{community} %i {white} players short.",PlayerDifference);
+				CPrintToChatAll("{strange}[nKH!]{community} %i{white} players short.",PlayerDifference);
 			}	
 		}
 	}
@@ -469,6 +466,7 @@ public Action:pass(client,args){
 */
 
 public Action:getString(client,args){
+
 	//ip 															//	FIND
 	new String:ip[16];												//	A
 	new Handle:ipHandler = FindConVar("ip");						//	MUCH
@@ -484,15 +482,13 @@ public Action:getString(client,args){
 	new Handle:hostnameHandler = FindConVar("hostname");			//	ANYMORE
 	GetConVarString(hostnameHandler,hostname,sizeof(hostname));		//	INEFFICIENT
 
+
 	//GetPass is true, and no extra values were specified
 	if(GetCmdArgs() < 1 && GetPass == true){
 		//Get's password.
 		new Handle:CurrentPasswordHandler = FindConVar("sv_password");
 		decl String:CurrentPassword[64];
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
-		//CPrint password to client.
-		//CPrintToChat(client,"{strange}[nKH!]{white} Connect string has also been given in console.");
-		//CPrintToChat(client,"{community}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
 		CReplyToCommand(client,"{strange}[nKH!]{white} Connect string has also been given in console.");
 		CReplyToCommand(client,"{community}connect %s:%s; password %s //%s", ip,hostport,CurrentPassword,hostname);
 		PrintToConsole(client,"connect %s:%s; password %s //%s",ip,hostport,CurrentPassword,hostname);
@@ -509,15 +505,14 @@ public Action:getString(client,args){
 */
 //Is MapTimer still able to access this, if it was in MapName.
 new String:MapName[16]; //Scratch 16 length string variable.
-
-public Action:mapChange(client,args){
+public Action:mapChange(client, args){
 	//Get the desired map.
 	new String:MapInput[16];
+	new bool:hasDone = false;
 	GetCmdArg(1,MapInput,sizeof(MapInput));
 	//Map wasn't specified.
 	if(GetCmdArgs() < 1){
 		//you fukt it.
-		//CPrintToChat(client,"{strange}[nKH!]{white} Incorrect usage!");
 		CReplyToCommand(client,"{strange}[nKH!]{white} Incorrect usage!");
 	}
 
@@ -527,18 +522,19 @@ public Action:mapChange(client,args){
 	}
 	if(IsMapValid(MapName)){
 		new waitTime = GetConVarInt(g_changemapwaittime);
-		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {community}%s{white} in %f seconds.",MapName,waitTime);
+		CPrintToChatAll("{strange}[nKH!]{white} Changing map to {community}%s{white} in %i seconds.",MapName,waitTime);
+		CReplyToCommand(client,"{strange}[nKH!]{white} Changing map to {community}%s{white} in %i seconds.",MapName,waitTime);
 		//Whole purpose of the timer is to alert players of the map change.
 		CreateTimer(float(waitTime),MapTimer);
-	}else{
-		//When a map that isn't installed is given, or something like !changemap SWAGBOIZE happens.
-		//CPrintToChat(client,"{strange}[nKH!]{white} Map not found, likely spelt incorrectly or not installed.");
+	}
+	else
+	{
+
 		CReplyToCommand(client,"{strange}[nKH!]{white} Map not found, likely spelt incorrectly or not installed.");
 	}
 	return Plugin_Handled;
 }
 public Action:MapTimer(Handle:timer){
-	//Change the map.
 	ServerCommand("changelevel %s",MapName);
 }
 /*
