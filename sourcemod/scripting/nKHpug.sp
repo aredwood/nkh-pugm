@@ -332,7 +332,7 @@ public Action:config(client,args){
 		}
 
 		if(!configFound){
-			CReplyToCommand(client,"{strange}[nKH!] lol, apple didn't do this correctly.");
+			CReplyToCommand(client,"{strange}[nKH!] Couldn't match map with config.");
 		}
 	}
 	return Plugin_Handled;	
@@ -436,7 +436,6 @@ public Action:pass(client,args){
 		decl String:CurrentPassword[64];
 		GetConVarString(CurrentPasswordHandler,CurrentPassword,sizeof(CurrentPassword));
 		//CPrint password to client.
-		//CPrintToChat(client,"{strange}[nKH!]{white} Current password is: {community}%s",CurrentPassword);
 		CReplyToCommand(client,"{strange}[nKH!]{white} Current password is: {community}%s",CurrentPassword);
 
 	}
